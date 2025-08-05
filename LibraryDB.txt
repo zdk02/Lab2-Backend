@@ -1,0 +1,57 @@
+#drop schema LibraryDB;
+create schema LibraryDB;
+
+use LibraryDB;
+
+create table Authors (
+	author_id int primary key,
+    name varchar(20) not null,
+    birth_date date,
+    country varchar(20)
+);
+
+create table Books (
+	book_id int primary key,
+    title varchar(30) not null,
+    author_id int,
+    isbn varchar(20),
+    published_year int,
+    FOREIGN KEY (author_id) REFERENCES Authors(author_id)
+);
+
+create table Borrowers (
+	borrower_id int primary key,
+    name varchar(20) not null,
+    email varchar(30) unique,
+    phone varchar(20)
+);
+
+create table Loans (
+	loan_id int primary key,
+	book_id int,
+    borrower_id int,
+	loan_date date,
+    return_date date,
+	returned bool,
+    FOREIGN KEY (book_id) REFERENCES Books(book_id),
+    FOREIGN KEY (borrower_id) REFERENCES Borrowers(borrower_id)
+);
+
+INSERT INTO Authors VALUES
+	(10 , 'Ali' , '1968-10-20' ,'Lebanon'),
+    (15 , 'Emma' , '1965-3-4' ,'Egypt'),
+    (20 , 'Sami' , '1989-5-25' ,'Algeria');
+
+INSERT INTO Books VALUES
+	(1 , 'Beauty and the Beast' , 10 ,'bhggt', 2004),
+    (2 , 'The Fault in our Stars' , 15 ,'mnmwq', 2020),
+    (3 , 'Summer' , 20 ,'oqecve', 2025),
+	(4 , 'Beauty' , 15 ,'bhgot', 2004);
+
+INSERT INTO Borrowers VALUES
+	(19 , 'Ali' , 'a@gmail.com' , '81738099'),
+    (29 , 'Zeinab' , 'z@gmail.com' , '71345098'),
+    (39 , 'Mariam' , 'm@gmail.com' , '03564703');
+
+select * from Books where published_year=2004;
+select count(book_id) from Books;
