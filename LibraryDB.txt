@@ -1,57 +1,104 @@
+
 #drop schema LibraryDB;
 create schema LibraryDB;
 
 use LibraryDB;
 
 create table Authors (
-	author_id int primary key,
+	author_id int auto_increment primary key,
     name varchar(20) not null,
-    birth_date date,
+    birth_date date not null,
     country varchar(20)
 );
 
 create table Books (
-	book_id int primary key,
+	book_id int auto_increment primary key,
     title varchar(30) not null,
-    author_id int,
-    isbn varchar(20),
-    published_year int,
+    author_id int not null,
+    isbn varchar(20) not null unique,
+    published_year int not null,
     FOREIGN KEY (author_id) REFERENCES Authors(author_id)
 );
 
 create table Borrowers (
-	borrower_id int primary key,
+	borrower_id int auto_increment primary key,
     name varchar(20) not null,
-    email varchar(30) unique,
+    email varchar(30) not null unique,
     phone varchar(20)
 );
 
 create table Loans (
-	loan_id int primary key,
-	book_id int,
-    borrower_id int,
-	loan_date date,
+	loan_id int auto_increment primary key,
+	book_id int not null,
+    borrower_id int not null,
+	loan_date date not null,
     return_date date,
+    due_date date not null,
 	returned bool,
     FOREIGN KEY (book_id) REFERENCES Books(book_id),
     FOREIGN KEY (borrower_id) REFERENCES Borrowers(borrower_id)
 );
 
-INSERT INTO Authors VALUES
-	(10 , 'Ali' , '1968-10-20' ,'Lebanon'),
-    (15 , 'Emma' , '1965-3-4' ,'Egypt'),
-    (20 , 'Sami' , '1989-5-25' ,'Algeria');
+INSERT INTO Authors (name, birth_date, country) VALUES
+    ('Ali' , '1968-10-20' ,'Lebanon'),
+    ('Emma' , '1965-03-04' ,'Egypt'),
+    ('Sami' , '1989-05-25' ,'Algeria');
 
-INSERT INTO Books VALUES
-	(1 , 'Beauty and the Beast' , 10 ,'bhggt', 2004),
-    (2 , 'The Fault in our Stars' , 15 ,'mnmwq', 2020),
-    (3 , 'Summer' , 20 ,'oqecve', 2025),
-	(4 , 'Beauty' , 15 ,'bhgot', 2004);
+INSERT INTO Books (title, author_id, isbn, published_year) VALUES
+    ('Beauty and the Beast' , 1 ,'bhggt', 2004),
+    ('The Fault in our Stars' , 2 ,'mnmwq', 2020),
+    ('Summer' , 3 ,'oqecve', 2025);
 
-INSERT INTO Borrowers VALUES
-	(19 , 'Ali' , 'a@gmail.com' , '81738099'),
-    (29 , 'Zeinab' , 'z@gmail.com' , '71345098'),
-    (39 , 'Mariam' , 'm@gmail.com' , '03564703');
+INSERT INTO Borrowers (name, email, phone) VALUES
+    ('Ali' , 'a@gmail.com' , '81738099'),
+    ('Zeinab' , 'z@gmail.com' , '71345098'),
+    ('Mariam' , 'm@gmail.com' , '03564703');
+
+INSERT INTO Loans (book_id, borrower_id, loan_date, return_date, due_date, returned) VALUES
+    (1 , 1 , '2025-08-01' , '2025-08-10', '2026-01-01' , TRUE),
+    (2 , 2 , '2025-08-03' , null , '2025-08-14', FALSE),
+    (3 , 3 , '2025-08-05' , '2025-08-12' , '2026-07-13',TRUE);
 
 select * from Books where published_year=2004;
-select count(book_id) from Books;
+
+select * from Loans where returned=FALSE and due_date<CURDATE();
+
+select b.book_id, b.title, l.loan_date, l.return_date, l.returned
+from Loans l
+join Books b      on b.book_id = l.book_id
+join Borrowers br on br.borrower_id = l.borrower_id
+where br.name = 'Ali';
+
+select count(book_id) as total_books from Books;
+
+create view popular_books as
+select b.book_id, b.title, count(l.loan_id) as total_loans
+from books b
+join loans l on b.book_id = l.book_id
+group by b.book_id, b.title
+order by total_loans desc;
+
+delimiter $$
+
+create procedure borrow_book(
+    in p_book_id int,
+    in p_borrower_id int,
+    in p_loan_date date
+)
+begin
+    insert into loans (book_id, borrower_id, loan_date, due_date, returned)
+    values (p_book_id, p_borrower_id, p_loan_date, date_add(p_loan_date, interval 14 day), false);
+end$$
+
+create procedure return_book(
+    in p_loan_id int,
+    in p_return_date date
+)
+begin
+    update loans
+    set returned = true,
+        return_date = p_return_date
+    where loan_id = p_loan_id;
+end$$
+
+delimiter ;
