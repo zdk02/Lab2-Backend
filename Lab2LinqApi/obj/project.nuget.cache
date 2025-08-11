@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "uOulGRi3AP8=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Zeinab\\RiderProjects\\Lab2LinqApi\\Lab2LinqApi\\Lab2LinqApi.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Zeinab\\.nuget\\packages\\microsoft.aspnetcore.openapi\\9.0.7\\microsoft.aspnetcore.openapi.9.0.7.nupkg.sha512",
+    "C:\\Users\\Zeinab\\.nuget\\packages\\microsoft.openapi\\1.6.17\\microsoft.openapi.1.6.17.nupkg.sha512"
+  ],
+  "logs": []
+}

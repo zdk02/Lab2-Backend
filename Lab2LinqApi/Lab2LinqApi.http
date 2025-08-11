@@ -1,0 +1,6 @@
+@Lab2LinqApi_HostAddress = http://localhost:5279
+
+GET {{Lab2LinqApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
